@@ -53,7 +53,7 @@ def _is_memory_message(texto):
     return bool(padrao.search(texto))
 
 
-def _process_chat(message):
+def _process_chat(message, companheira_nome="sol"):
     mensagem = (message or "").strip()
     if not mensagem:
         return {"resposta": "Você pode me mandar uma mensagem para continuar a conversa."}
@@ -72,7 +72,7 @@ def _process_chat(message):
     salvar_historico(historico)
 
     contexto = criar_contexto_memoria(memoria)
-    instrucoes = criar_instrucoes(memoria, contexto)
+    instrucoes = criar_instrucoes(memoria, contexto, companheira_nome=companheira_nome)
     resposta = gerar_resposta(instrucoes, historico)
 
     historico.append({"role": "assistant", "content": resposta})
@@ -87,18 +87,18 @@ class SolHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", "https://sol.guigamusic.com.br")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", "https://sol.guigamusic.com.br")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
 
     def do_GET(self):
@@ -152,7 +152,8 @@ class SolHandler(BaseHTTPRequestHandler):
             return
 
         mensagem = payload.get("message") if isinstance(payload, dict) else None
-        resposta = _process_chat(mensagem)
+        companheira = payload.get("companion") if isinstance(payload, dict) else "sol"
+        resposta = _process_chat(mensagem, companheira_nome=companheira)
         self._send_json(resposta)
 
 
