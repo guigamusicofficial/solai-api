@@ -3,18 +3,26 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "postgresql://user:password@localhost:5432/solai"
+    database_url: str = "postgresql://postgres:password@localhost:5432/solai_prod"
     
     # JWT & Auth
-    secret_key: str = "your-secret-key"
+    secret_key: str = "your-secret-key-change-in-production"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
     
-    # API Keys
+    # API Keys - Hugging Face (Primary)
+    huggingface_api_key: str = ""
+    
+    # API Keys - Fallback
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
+    
     deepseek_api_key: str = ""
     deepseek_base_url: str = "https://api.deepseek.com"
+    
+    groq_api_key: str = ""
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    
     gemini_api_key: str = ""
     
     # Stripe
@@ -28,11 +36,11 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = False
     
-    # Frontend
+    # Frontend & API URLs
     frontend_url: str = "http://localhost:3000"
     api_url: str = "http://localhost:8080"
     
-    # Redis
+    # Redis (optional)
     redis_url: Optional[str] = None
     
     class Config:
